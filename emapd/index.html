@@ -1,0 +1,1093 @@
+<html style="height:100%;">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>境外攻击分布图</title>
+    <link href="css/bootstrap.css" rel="stylesheet">
+	<link href="css/x.css" rel="stylesheet">
+	<script src="js/jquery.min.js"></script>
+</head>
+<style>
+</style>
+
+<body style="height:100%;padding-top:0;">
+<div class="loading" >
+	<div class="container">
+    <div class="circle1"></div>
+    <div class="circle2"></div>
+    </div>
+</div>
+
+
+
+<div class="credits" style=color:#bbb>
+AISEC
+</div>
+
+
+<div class="c_src">
+	<div  style='padding:0px;font-family:"黑体","宋体","幼圆";color:white;background-color:rgba(0,30,30,0.6);'>
+		<div  class="mon_f fltl" style="padding-bottom:20px;">
+				<span class="fs15" id=id_src_0 style="padding-bottom:5px;">攻击源</span>
+				<div id="summary_src" class="fltl">
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>亚洲<br>-</span>
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>北美洲<br>-</span>
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>欧洲<br>-</span>
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>大洋洲<br>-</span>
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>非洲<br>-</span>				
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>南美洲<br>-</span>	
+				</div>
+			</div>
+    </div>
+</div>
+
+<div class="c_dst">
+	<div  style='padding:0px;font-family:"黑体","宋体","幼圆";color:white;background-color:rgba(0,30,30,0.6);'>
+		<div class="mon_f fltl" style="padding-bottom:20px;">
+				<span class="fs15" id=id_dst_0 style="padding-bottom:5px;">受攻击目标</span>
+				<div id="summary_dst" class="fltl">
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>亚洲<br>-</span>
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>北美洲<br>-</span>
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>欧洲<br>-</span>
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>大洋洲<br>-</span>
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>非洲<br>-</span>				
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>南美洲<br>-</span>	
+				</div>
+			</div>
+    </div>
+</div>
+
+
+<div class="zw bluebg">境外攻击分布图<span>Cyber Thread Map</span></div>
+<script>
+		var showDataView = 1;
+		var geodata={
+				
+               	'大洋洲':[135.0000,-25.0000],
+				'南美洲':[-55.0000,-15.0000],
+				'非洲':[20.0000,10.0000],
+
+				'北美洲':[-100.0000,40.0000],//北美洲 
+               	'亚洲':[105.0000,34.0000],//亚洲
+				'欧洲':[33.0000,55.0000]/*,//欧洲
+
+				'. ':[-100.0000,39.0000],//北美洲 
+				'.  ':[-100.0000,41.0000],//北美洲
+				'.. ':[109.0000,32.0000],//亚洲 
+				'..  ':[109.0000,34.0000],//亚洲
+				'... ':[105.0000,62.0000],//欧洲
+				'...  ':[105.0000,64.0000]//欧洲
+				*/
+				//,'北京':[115.0000,40.0000]
+
+		};
+	
+	//生成随机整数
+	function rand(from,to){
+		rndnum=parseInt(Math.random()*(to-from+1) + from);
+		return rndnum;
+	}
+
+	//对象型数组排序,返回一个比较器  
+	function asort_compare(object1, object2) {
+		var value1 = object1['value'];  
+		var value2 = object2['value'];
+		return value2-value1;
+	}  
+
+	function asort(arr){
+		var data= new Array();		//保存值
+		for(var name in arr){
+			data.push({"name":name,"value":arr[name]});
+		}
+		data.sort(asort_compare);
+		var output={};
+		for(var i=0;i<data.length;i++){
+			output[data[i].name]=data[i].value;
+		}
+		return output;
+	}
+
+	function array_sum(arr){
+		var output=0;
+		for(var temp in arr){
+			output+=arr[temp];
+		}
+		return output;
+	}
+
+	function max(arr){
+		var output=-1;
+		for(var temp in arr){
+			if(output==-1) output=arr[temp];
+			if(arr[temp]>output) output=arr[temp];
+		}
+		return output;
+	}
+
+	function min(arr){
+		var output=-1;
+		for(var temp in arr){
+			if(output==-1) output=arr[temp];
+			if(arr[temp]<output) output=arr[temp];
+		}
+		return output;
+	}
+
+	function array_keys(arr){
+		var output=[];
+		for(var temp in arr){
+			output.push(temp);
+		}
+		return output;
+	}
+
+	function showText(div,str,speed){
+		
+
+		if(!speed) speed=10;
+		div=$(div);
+		var interval;
+		str=""+str;//保证不是数字
+
+		
+
+		div.html(str.substr(0,1));
+		var i=1;
+		function showText_ex(){
+			if(i<(str.length-1)) {	
+				div.append(str.substr(i,1));
+				i=i+1;
+			}else{
+				div.html(str);
+				clearInterval(interval);
+			}
+		}
+		interval=setInterval(showText_ex,speed);	
+	}
+
+	</script>
+	
+    <div id="platform" class="bg_blue" style="width:100%;height:100%;">
+		<div id="mainMap" class="fltl" style="width:100%;height:95%;"></div>
+		<div id="b" class="mon_b" style="background-color:rgba(0,30,30,0.6);">
+			<div id="panel1" class="mon_f fltl" style="width:15%;" onclick="hiddenMon(this.id)">
+				<span class="fs13" id=id_title_type style="padding-bottom:5px;" >攻击类型</span>
+				<div class="">
+					<span  class="mon_f_stat_green fs10 ">总计</span>
+					<span id="id_allSum" class="fs20" style="font-weight:bold;">-</span>
+				</div>
+
+				<div id="mon_f_item0" class="mon_f_stat_now">
+					<span id=id_title_item0 class="mon_f_stat_green fs10 ">类型 1</span>
+					<span id=id_sum_item0 class="fs20" style="font-weight:bold;">-</span>
+				</div>
+				<div id="mon_f_item1" class="">
+					<span id=id_title_item1 class="mon_f_stat_green fs10"></span>
+					<span id=id_sum_item1 class="fs20" style="font-weight:bold;"></span>
+				</div>
+				<div id="mon_f_item2" class="">
+					<span id=id_title_item2 class="mon_f_stat_green fs10"></span>
+					<span id=id_sum_item2 class="fs20" style="font-weight:bold;"></span>
+				</div>
+				<!--
+				<div id="mon_f_item3" class="">
+					<span class="mon_f_stat_green fs10"></span>
+					<span class="fs20" style="font-weight:bold;"></span>
+				</div>
+				-->
+			</div>
+			<div id="line1" class="mon_f_line fltl">
+			</div>
+			<div id="panel2" class="mon_f fltl" style="width:30%;" onclick="hiddenMon(this.id)">
+				<span class="fs15"  id=id_title_src style="padding-bottom:5px;">攻击源分布</span>
+				<div id="summary" class="fltl" style="width:30%;">
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>北美洲<br>-</span>
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>欧洲<br>-</span>
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>亚洲<br>-</span>
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>大洋洲<br>-</span>
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>非洲<br>-</span>				
+					<span class="mon_f_stat_green fs10" style='padding-left:5px;'>南美洲<br>-</span>	
+				</div>
+				<div id="pieMap" class="fltl" style="width:70%;height:65%;"></div>
+			</div>
+			<div id="line2" class="mon_f_line fltl">
+			</div>
+			<div id="panel3" class="mon_f fltl" style="width:15%;"  onclick="hiddenMon(this.id)">
+				<span class="fs13" id=id_title style="padding-bottom:5px;">危害分布</span>
+				<span class="mon_f_stat_green fs10">严重</span>
+				<span id="id_critical" class="fs20" style="font-weight:bold;">-</span>
+				<span class="mon_f_stat_green fs10">高危</span>
+				<span id="id_high" class="fs20" style="font-weight:bold;">-</span>
+				<span class="mon_f_stat_green fs10">中危</span>
+				<span id="id_middle" class="fs20" style="font-weight:bold;">-</span>
+				<span class="mon_f_stat_green fs10">低危</span>
+				<span id="id_low" class="fs20" style="font-weight:bold;">-</span>
+				<span class="mon_f_stat_green fs10">普通</span>
+				<span id="id_notice" class="fs20" style="font-weight:bold;">-</span>
+			</div>
+			<div id="line3" class="mon_f_line fltl">
+			</div>
+			<div id="panel4" class="mon_f fltl" style="width:37%;" onclick="hiddenMon(this.id)">
+				<span class="fs15" id=id_title_time style="padding-bottom:5px;">攻击时间分布</span>
+				<div id="lineMap" style="margin:-50px 0 0 -40px;width:120%;height:110%"></div>
+			</div>
+			<div id="line4" class="mon_f_line fltl"></div>
+			<div id="panel_c" class="mon_f_re mon_f_re_w40 fltl">
+				<span id="panel1_c" class="mon_f_re_hidden" onclick="addMon(this.id)">><span class="">总览</span></span>
+				<span id="panel2_c" class="mon_f_re_hidden" onclick="addMon(this.id)">><span class="">区域</span></span>
+				<span id="panel3_c" class="mon_f_re_hidden" onclick="addMon(this.id)">><span class="">分类</span></span>
+				<span id="panel4_c" class="mon_f_re_hidden" onclick="addMon(this.id)">><span class="">趋势</span></span>
+			</div>
+		</div>
+	</div>
+	
+
+	
+
+
+	<script src="js/echarts.js"></script>
+	<script type="text/javascript">
+	require.config({
+        paths: {
+            echarts: './js'
+        }
+    });
+	var g_echarts;
+	var myChart,myChart2,myChart_line;
+	var myCharts;
+	var topSort=new Array();	//用于top列表排名的数组
+	var monSum=5; //控制背景显示
+	var g_monIndex=0;//监视器切换
+	var mapDS="eMap.data.php";
+	var g_data=false;//下载下来的数据
+	
+	for (var i=0;i<10;i++){
+		var tmp=new Array();
+		tmp["南美洲"]=(i+1)*30;
+		tmp["非洲"]=(i+1)*40;
+		tmp["大洋洲"]=(i+1)*50;
+		tmp["欧洲"]=(i+1)*60;
+		tmp["亚洲"]=(i+1)*70;
+		tmp["北美洲"]=(i+1)*80;
+		topSort.push(tmp);//每个攻击类型有一个数组
+	}
+
+	//监视器折叠展开	
+	function addMon(id){
+		id = id.substr(0,6);
+		var obj=document.getElementById(id);
+		if (monSum==4){
+			$('#b').addClass("mon_b_bg");
+			$('#panel1').removeClass("mon_b_bg");
+			$('#panel2').removeClass("mon_b_bg");
+			$('#panel3').removeClass("mon_b_bg");
+			$('#panel4').removeClass("mon_b_bg");
+			$('#panel5').removeClass("mon_b_bg");
+			$('#panel_c').removeClass("mon_f_re_w100");
+			$('#panel_c').addClass("mon_f_re_w40");
+		}
+		obj.style.display="block";
+		$('#'+id+"_c").removeClass("mon_f_re_show");
+		$('#'+id+"_c").addClass("mon_f_re_hidden");		
+		monSum++;
+	}
+
+	function hiddenMon(id){
+		var obj=document.getElementById(id);	
+		$('#b').removeClass("mon_b_bg");
+		$('#panel1').addClass("mon_b_bg");
+		$('#panel2').addClass("mon_b_bg");
+		$('#panel3').addClass("mon_b_bg");
+		$('#panel4').addClass("mon_b_bg");
+		$('#panel5').addClass("mon_b_bg");
+		$('#panel_c').removeClass("mon_f_re_w40");
+		$('#panel_c').addClass("mon_f_re_w100");
+		obj.style.display="none";
+		$('#'+id+"_c").removeClass("mon_f_re_hidden");
+		$('#'+id+"_c").addClass("mon_f_re_show");
+		monSum--;
+	}
+
+	//MarkPoint队列
+	function addPoint(color,from,to){
+		if(!geodata[from]) {
+			alert("no "+from);
+			return;
+		}
+		myChart.addMarkPoint(0,{itemStyle:{normal:{color:color}},data:[{name:from}]});
+		
+		setTimeout(function(){
+			myChart.delMarkPoint(0,from);
+		},4000);
+	}
+
+	
+
+
+	function buildMap(_option){//控制地图着色:着色根据topsort中的数据
+		var data=_option.series[0].data;
+		var temp;
+		for(var i=0;i<data.length;i++){
+			temp=topSort[g_monIndex][data[i]['name']];
+			if(temp){
+				data[i]['value']=temp;
+			}
+		}
+		_option.series[0].data=data;
+		_option.dataRange.max=max(topSort[g_monIndex]);
+		_option.dataRange.min=min(topSort[g_monIndex]);
+		myChart.clear();myChart.dispose();myChart = g_echarts.init(document.getElementById('mainMap'));
+		myChart.setOption(_option,true);
+	}
+
+	
+	function pieColor(alpha) {
+		if(!alpha) alpha=rand(1,9)/10;
+		return {
+			normal: {
+				color:'rgba(120,250,250,'+alpha+')'
+			}
+		}
+	};
+
+    require(
+        [
+            'echarts',
+            'echarts/chart/map',
+			'echarts/chart/line',
+			'echarts/chart/pie'
+        ],
+        function (ec) {
+			g_echarts=ec;
+			require('echarts/util/mapData/params').params.xmap = {
+				getGeoJson: function (callback) {
+					$.getJSON('w1.json',callback);
+				}
+			};
+			option = {//大地图
+
+				dataRange: {
+					show:false,
+					min: 0,
+					max: 4,
+					x: '14%',
+					y: '43%',
+					formatter :function(v, v2){
+						return;
+						v=parseInt(v);
+						v2=parseInt(v2);
+						if (max(topSort[g_monIndex])>5) return v+'次 到 '+v2+'次'
+						else return '数据量不足';
+					},
+					color:['rgba(255,130,12,0.5)','rgba(255,235,0,0.5)','rgba(120,250,250,0.2)'],
+					textStyle:{color: '#6494ed'} 
+					
+				},
+				tooltip : {
+					trigger: 'item',
+					formatter: function (params){
+						// return "地域："+params.name;
+
+						// var value = "事件次数："+params.value + '次 ';
+						// return params.name + ' : ' + value;
+						var value = (params.value + '').split('.');
+                    	value = value[0].replace(/(\d{1,3})(?=(?:\d{3})+(?!\d))/g, '$1,')
+                            + '.' + value[1];
+                   	 	return params.seriesName + '<br/>' + params.name + ' : ' + value;
+					}
+				},
+				series : [
+					{
+						name:'国家',
+						type: 'map',
+						mapType: 'world',
+						// hoverable:false,
+						roam: true,
+						itemStyle:{
+							normal:{
+								label:{
+									show:true,
+									textStyle: {
+										color: 'transparent',
+										fontSize:15,
+										fontFamily:'宋体,黑体,幼圆',
+										fontWeight:900
+									}
+								},
+								borderColor:'rgba(120,250,250,0.9)',
+								borderWidth:0.5,
+								areaStyle:{color: 'rgba(120,250,250,0.8)'}								
+							},
+							emphasis:{label:{show:true}}
+						},
+						data:[
+							{name: 'Afghanistan', value: 28397.812},
+	                        {name: 'Angola', value: 19549.124},
+	                        {name: 'Albania', value: 3150.143},
+	                        {name: 'United Arab Emirates', value: 8441.537},
+	                        {name: 'Argentina', value: 40374.224},
+	                        {name: 'Armenia', value: 2963.496},
+	                        {name: 'French Southern and Antarctic Lands', value: 268.065},
+	                        {name: 'Australia', value: 22404.488},
+	                        {name: 'Austria', value: 8401.924},
+	                        {name: 'Azerbaijan', value: 9094.718},
+	                        {name: 'Burundi', value: 9232.753},
+	                        {name: 'Belgium', value: 10941.288},
+	                        {name: 'Benin', value: 9509.798},
+	                        {name: 'Burkina Faso', value: 15540.284},
+	                        {name: 'Bangladesh', value: 151125.475},
+	                        {name: 'Bulgaria', value: 7389.175},
+	                        {name: 'The Bahamas', value: 66402.316},
+	                        {name: 'Bosnia and Herzegovina', value: 3845.929},
+	                        {name: 'Belarus', value: 9491.07},
+	                        {name: 'Belize', value: 308.595},
+	                        {name: 'Bermuda', value: 64.951},
+	                        {name: 'Bolivia', value: 716.939},
+	                        {name: 'Brazil', value: 195210.154},
+	                        {name: 'Brunei', value: 27.223},
+	                        {name: 'Bhutan', value: 716.939},
+	                        {name: 'Botswana', value: 1969.341},
+	                        {name: 'Central African Republic', value: 4349.921},
+	                        {name: 'Canada', value: 34126.24},
+	                        {name: 'Switzerland', value: 7830.534},
+	                        {name: 'Chile', value: 17150.76},
+	                        {name: 'China', value: 1359821.465},
+	                        {name: 'Ivory Coast', value: 60508.978},
+	                        {name: 'Cameroon', value: 20624.343},
+	                        {name: 'Democratic Republic of the Congo', value: 62191.161},
+	                        {name: 'Republic of the Congo', value: 3573.024},
+	                        {name: 'Colombia', value: 46444.798},
+	                        {name: 'Costa Rica', value: 4669.685},
+	                        {name: 'Cuba', value: 11281.768},
+	                        {name: 'Northern Cyprus', value: 1.468},
+	                        {name: 'Cyprus', value: 1103.685},
+	                        {name: 'Czech Republic', value: 10553.701},
+	                        {name: 'Germany', value: 83017.404},
+	                        {name: 'Djibouti', value: 834.036},
+	                        {name: 'Denmark', value: 5550.959},
+	                        {name: 'Dominican Republic', value: 10016.797},
+	                        {name: 'Algeria', value: 37062.82},
+	                        {name: 'Ecuador', value: 15001.072},
+	                        {name: 'Egypt', value: 78075.705},
+	                        {name: 'Eritrea', value: 5741.159},
+	                        {name: 'Spain', value: 46182.038},
+	                        {name: 'Estonia', value: 1298.533},
+	                        {name: 'Ethiopia', value: 87095.281},
+	                        {name: 'Finland', value: 5367.693},
+	                        {name: 'Fiji', value: 860.559},
+	                        {name: 'Falkland Islands', value: 49.581},
+	                        {name: 'France', value: 63230.866},
+	                        {name: 'Gabon', value: 1556.222},
+	                        {name: 'United Kingdom', value: 62066.35},
+	                        {name: 'Georgia', value: 4388.674},
+	                        {name: 'Ghana', value: 24262.901},
+	                        {name: 'Guinea', value: 10876.033},
+	                        {name: 'Gambia', value: 1680.64},
+	                        {name: 'Guinea Bissau', value: 10876.033},
+	                        {name: 'Equatorial Guinea', value: 696.167},
+	                        {name: 'Greece', value: 11109.999},
+	                        {name: 'Greenland', value: 56.546},
+	                        {name: 'Guatemala', value: 14341.576},
+	                        {name: 'French Guiana', value: 231.169},
+	                        {name: 'Guyana', value: 786.126},
+	                        {name: 'Honduras', value: 7621.204},
+	                        {name: 'Croatia', value: 4338.027},
+	                        {name: 'Haiti', value: 9896.4},
+	                        {name: 'Hungary', value: 10014.633},
+	                        {name: 'Indonesia', value: 240676.485},
+	                        {name: 'India', value: 1205624.648},
+	                        {name: 'Ireland', value: 4467.561},
+	                        {name: 'Iran', value: 240676.485},
+	                        {name: 'Iraq', value: 30962.38},
+	                        {name: 'Iceland', value: 318.042},
+	                        {name: 'Israel', value: 7420.368},
+	                        {name: 'Italy', value: 60508.978},
+	                        {name: 'Jamaica', value: 2741.485},
+	                        {name: 'Jordan', value: 6454.554},
+	                        {name: 'Japan', value: 127352.833},
+	                        {name: 'Kazakhstan', value: 15921.127},
+	                        {name: 'Kenya', value: 40909.194},
+	                        {name: 'Kyrgyzstan', value: 5334.223},
+	                        {name: 'Cambodia', value: 14364.931},
+	                        {name: 'South Korea', value: 51452.352},
+	                        {name: 'Kosovo', value: 97.743},
+	                        {name: 'Kuwait', value: 2991.58},
+	                        {name: 'Laos', value: 6395.713},
+	                        {name: 'Lebanon', value: 4341.092},
+	                        {name: 'Liberia', value: 3957.99},
+	                        {name: 'Libya', value: 6040.612},
+	                        {name: 'Sri Lanka', value: 20758.779},
+	                        {name: 'Lesotho', value: 2008.921},
+	                        {name: 'Lithuania', value: 3068.457},
+	                        {name: 'Luxembourg', value: 507.885},
+	                        {name: 'Latvia', value: 2090.519},
+	                        {name: 'Morocco', value: 31642.36},
+	                        {name: 'Moldova', value: 103.619},
+	                        {name: 'Madagascar', value: 21079.532},
+	                        {name: 'Mexico', value: 117886.404},
+	                        {name: 'Macedonia', value: 507.885},
+	                        {name: 'Mali', value: 13985.961},
+	                        {name: 'Myanmar', value: 51931.231},
+	                        {name: 'Montenegro', value: 620.078},
+	                        {name: 'Mongolia', value: 2712.738},
+	                        {name: 'Mozambique', value: 23967.265},
+	                        {name: 'Mauritania', value: 3609.42},
+	                        {name: 'Malawi', value: 15013.694},
+	                        {name: 'Malaysia', value: 28275.835},
+	                        {name: 'Namibia', value: 2178.967},
+	                        {name: 'New Caledonia', value: 246.379},
+	                        {name: 'Niger', value: 15893.746},
+	                        {name: 'Nigeria', value: 159707.78},
+	                        {name: 'Nicaragua', value: 5822.209},
+	                        {name: 'Netherlands', value: 16615.243},
+	                        {name: 'Norway', value: 4891.251},
+	                        {name: 'Nepal', value: 26846.016},
+	                        {name: 'New Zealand', value: 4368.136},
+	                        {name: 'Oman', value: 2802.768},
+	                        {name: 'Pakistan', value: 173149.306},
+	                        {name: 'Panama', value: 3678.128},
+	                        {name: 'Peru', value: 29262.83},
+	                        {name: 'Philippines', value: 93444.322},
+	                        {name: 'Papua New Guinea', value: 6858.945},
+	                        {name: 'Poland', value: 38198.754},
+	                        {name: 'Puerto Rico', value: 3709.671},
+	                        {name: 'North Korea', value: 1.468},
+	                        {name: 'Portugal', value: 10589.792},
+	                        {name: 'Paraguay', value: 6459.721},
+	                        {name: 'Qatar', value: 1749.713},
+	                        {name: 'Romania', value: 21861.476},
+	                        {name: 'Russia', value: 21861.476},
+	                        {name: 'Rwanda', value: 10836.732},
+	                        {name: 'Western Sahara', value: 514.648},
+	                        {name: 'Saudi Arabia', value: 27258.387},
+	                        {name: 'Sudan', value: 35652.002},
+	                        {name: 'South Sudan', value: 9940.929},
+	                        {name: 'Senegal', value: 12950.564},
+	                        {name: 'Solomon Islands', value: 526.447},
+	                        {name: 'Sierra Leone', value: 5751.976},
+	                        {name: 'El Salvador', value: 6218.195},
+	                        {name: 'Somaliland', value: 9636.173},
+	                        {name: 'Somalia', value: 9636.173},
+	                        {name: 'Republic of Serbia', value: 3573.024},
+	                        {name: 'Suriname', value: 524.96},
+	                        {name: 'Slovakia', value: 5433.437},
+	                        {name: 'Slovenia', value: 2054.232},
+	                        {name: 'Sweden', value: 9382.297},
+	                        {name: 'Swaziland', value: 1193.148},
+	                        {name: 'Syria', value: 7830.534},
+	                        {name: 'Chad', value: 11720.781},
+	                        {name: 'Togo', value: 6306.014},
+	                        {name: 'Thailand', value: 66402.316},
+	                        {name: 'Tajikistan', value: 7627.326},
+	                        {name: 'Turkmenistan', value: 5041.995},
+	                        {name: 'East Timor', value: 10016.797},
+	                        {name: 'Trinidad and Tobago', value: 1328.095},
+	                        {name: 'Tunisia', value: 10631.83},
+	                        {name: 'Turkey', value: 72137.546},
+	                        {name: 'United Republic of Tanzania', value: 44973.33},
+	                        {name: 'Uganda', value: 33987.213},
+	                        {name: 'Ukraine', value: 46050.22},
+	                        {name: 'Uruguay', value: 3371.982},
+	                        {name: 'United States of America', value: 312247.116},
+	                        {name: 'Uzbekistan', value: 27769.27},
+	                        {name: 'Venezuela', value: 236.299},
+	                        {name: 'Vietnam', value: 89047.397},
+	                        {name: 'Vanuatu', value: 236.299},
+	                        {name: 'West Bank', value: 13.565},
+	                        {name: 'Yemen', value: 22763.008},
+	                        {name: 'South Africa', value: 51452.352},
+	                        {name: 'Zambia', value: 13216.985},
+	                        {name: 'Zimbabwe', value: 13076.978}
+						],
+						markLine : {
+			                smooth:true,
+			                effect : {/*
+			                    show: true,
+			                    scaleSize: 2,
+			                    period: 15,
+			                    color: 'red',
+			                    shadowBlur: 10
+								*/
+			                },
+			                itemStyle : {
+			                    normal: {
+			                        borderWidth:9,
+			                        lineStyle: {//color:'#FF9224',
+			                            type: 'solid',
+			                            shadowBlur: 0
+			                        }
+			                    }
+			                },
+			                data : [
+			                    [{name:'北美洲'}, {name:'亚洲',value:100}],
+			                    [{name:'北美洲'}, {name:'欧洲',value:150}],
+			                  	[{name:'欧洲'}, {name:'亚洲',value:50}]
+			                     
+			                ]
+			            },				
+						markPoint : {
+							symbol: 'emptyDiamond',// emptyCircle emptyRectangle 
+							symbolSize : 15,
+							effect : {
+								show: true,
+								loop:false,
+								shadowBlur : 0
+							},
+							itemStyle:{
+								normal:{
+									color:"white",
+									label:{show:false}
+								},
+								emphasis: {
+									label:{show:false}
+								}
+							},
+							data : []
+						},
+						geoCoord: geodata
+					},
+					{name:'亚洲',
+			            type:'pie',
+			            tooltip : {
+			                trigger: 'item',
+			                formatter: '{a} <br/>{b} : {c} ({d}%)'
+		            	},
+		            	center: ['80%','37%'],
+		            	radius : [8, 25], //roseType : 'area',
+		            	itemStyle :　{
+		                normal : {
+		                    labelLine : {
+		                        length : 0
+		                    }
+		                }
+		            	},
+			            data:[
+							{value:1, name:'攻击源',itemStyle:pieColor(0.9)},
+			                {value:1, name:'攻击目标',itemStyle:pieColor(0.4)}
+
+			            ]
+			        },
+					{name:'北美洲', 
+			            type:'pie',
+			            tooltip : {
+			                trigger: 'item',
+			                formatter: '{a} <br/>{b} : {c} ({d}%)'
+			            },
+			            center: ['29%','33%'],
+			            radius : [8, 25], //roseType : 'area',
+			            itemStyle :　{
+			                normal : {
+			                    labelLine : {
+			                        length : 0
+			                    }
+			                }
+			            },
+			            data:[
+							{value:1, name:'攻击源',itemStyle:pieColor(0.9)},
+			                {value:1, name:'攻击目标',itemStyle:pieColor(0.4)}
+
+			            ]
+						
+			        },
+					{name:'欧洲',
+			            type:'pie', 
+			            tooltip : {
+			                trigger: 'item',
+			                formatter: '{a} <br/>{b} : {c} ({d}%)'
+			            },
+			            center: ['61%','22%'],
+			            radius : [8, 25], //roseType : 'area',
+			            itemStyle :　{
+			                normal : {
+			                    labelLine : {
+			                        length : 0
+			                    }
+			                }
+			            },
+			            data:[
+							{value:1, name:'攻击源',itemStyle:pieColor(0.9)},
+			                {value:1, name:'攻击目标',itemStyle:pieColor(0.4)}
+			            ]
+			        },
+		            {name: '-',
+			            type: 'map',
+			            mapType: 'xmap',
+			            data:[],
+			            markLine : {
+			                smooth:true,
+			                effect : {/*
+			                    show: true,
+			                    scaleSize: 2,
+			                    period: 15,
+			                    color: 'red',
+			                    shadowBlur: 10
+								*/
+			                },
+			                itemStyle : {
+			                    normal: {
+			                        borderWidth:9,
+			                        lineStyle: {//color:'#FF9224',
+			                            type: 'solid',
+			                            shadowBlur: 0
+			                        }
+			                    }
+			                },
+			                data : [
+			                    // [{name:'北美洲'}, {name:'亚洲',value:100}],
+			                  // [{name:'欧洲'}, {name:'亚洲',value:50}]
+			                     
+			                ]
+			            }
+			        }
+				]
+
+            };
+			option2 = {//饼状图
+				series : [
+					{
+						type:'pie',
+						center: ['50%', '50%'],
+						radius:['25%','55%'],
+						itemStyle : {
+							normal : {
+								label : {
+									show : true		
+								},
+								labelLine : {
+									show : true,
+									length:3
+								}
+							}
+						},
+						data:[]
+					}
+				]
+			};
+			
+			var lineData=[];
+			for(var i=0;i<31;i++){
+				lineData.push((i+1)+"日");
+			}
+			
+			option_line = {//趋势图
+				tooltip : {
+					trigger: 'axis'
+				},
+				xAxis : [
+					{
+						type : 'category',
+						boundaryGap : false,
+						axisLabel : {
+						  textStyle:{
+								color: '#fff'
+							}   
+						},
+						data : lineData
+					}
+				],
+				yAxis : [
+					{
+						type : 'value',
+						axisLabel : {
+						  textStyle:{
+								color: '#fff'
+							}   
+						},
+					}
+				],
+				series :  [
+					{
+						name:'普通',
+						type:'line',
+						stack: '总量',
+						itemStyle: {normal: {areaStyle: {type: 'default'}}},
+						data:[]
+					},{
+						name:'低危',
+						type:'line',
+						//stack: '总量',
+						itemStyle: {normal: {areaStyle: {type: 'default'}}},
+						data:[]
+					},
+					{
+						name:'中危',
+						type:'line',
+						//stack: '总量',
+						itemStyle: {normal: {areaStyle: {type: 'default'}}},
+						data:[]
+					},
+					{
+						name:'高危',
+						type:'line',
+						//stack: '总量',
+						itemStyle: {normal: {areaStyle: {type: 'default'}}},
+						data:[]
+					},
+					{
+						name:'严重',
+						type:'line',
+						//stack: '总量',
+						itemStyle: {normal: {areaStyle: {type: 'default'}}},
+						data:[]
+					}
+				]
+			};
+            // --- 地图 ---
+            myChart = g_echarts.init(document.getElementById('mainMap'));
+			for(var name in geodata){
+				option.series[0].data.push({"name":name,"value":0});
+			}
+			//myChart.setOption(option);
+			buildMap(option);
+
+
+			// --- 监视器饼图 ---
+			myChart2 = g_echarts.init(document.getElementById('pieMap'));
+			myChart2.setOption(option2);
+			
+			// --- 折线图 ---
+			myChart_line = g_echarts.init(document.getElementById('lineMap'));
+			myChart_line.setOption(option_line);
+
+
+			myCharts=[myChart,myChart2,myChart_line];
+		}
+	);
+
+	function setMapPie(orgData){
+		//alert(orgData.dstSum["欧洲"]);
+		var option=myChart.getOption();
+		series=option.series;
+		var a=orgData.srcSum["亚洲"];
+		var b=orgData.dstSum["亚洲"];
+		a=a?a:0;
+		b=b?b:0;
+		series[1].data=[{value:a,itemStyle:pieColor(0.9), name:'攻击源'},{value:b, name:'攻击目标',itemStyle:pieColor(0.4)}];
+		
+		
+		a=orgData.srcSum["北美洲"];
+		b=orgData.dstSum["北美洲"];
+		a=a?a:0;
+		b=b?b:0;
+		
+		//alert(a+"-"+b);
+		series[2].data=[{value:a,itemStyle:pieColor(0.9), name:'攻击源'},{value:b, name:'攻击目标',itemStyle:pieColor(0.4)}];
+		
+		a=orgData.srcSum["欧洲"];
+		b=orgData.dstSum["欧洲"];
+		a=a?a:0;
+		b=b?b:0;
+		//alert(a+"-"+b);
+		series[3].data=[{value:a,itemStyle:pieColor(0.9), name:'攻击源'},{value:b, name:'攻击目标',itemStyle:pieColor(0.4)}];
+		
+		option.series=series;
+		myChart.setOption(option,true);//没有销毁，会内存泄漏
+		
+	}
+	
+	function setPie(orgData){
+		var data=orgData.srcSum;
+		var pieData=new Array();
+		var srcHTML="";
+		var sum=array_sum(data);
+		var index=5;
+		for (var key in data){
+			var percent=(data[key]/sum)*100;
+			pieData.push({ name:key, value:data[key],itemStyle:pieColor(--index*2/10)});
+			srcHTML+="<span style='padding-left:5px;' class=\"mon_f_stat_green fs10\">"+key+"<br>"+data[key]+"次("+percent.toFixed(0)+"%)</span>";	
+		}
+		
+		var data=orgData.dstSum;
+		var dstHTML="";
+		var sum=array_sum(data);
+		for (var key in data){
+			var percent=(data[key]/sum)*100;
+			dstHTML+="<span style='padding-left:5px;' class=\"mon_f_stat_green fs10\">"+key+"<br>"+data[key]+"次("+percent.toFixed(0)+"%)</span>";	
+		}
+
+		$("#summary").html(srcHTML);
+		$("#summary_src").html(srcHTML);
+		$("#summary_dst").html(dstHTML);
+
+		option2.series[0].data=pieData;
+
+		myChart2.clear();myChart2.dispose();myChart2 = g_echarts.init(document.getElementById('pieMap'));
+		myChart2.setOption(option2,true);
+	}
+	
+	function setPanel_1(){
+		var data=g_data;
+		var allSum=0;
+		for (var id=0;id<data.length;id++)
+		{
+			$("#id_title_item"+id).html(data[id].title);
+			$("#id_sum_item"+id).html(data[id].sum);
+			allSum+=data[id].sum;
+		}
+		$('#id_allSum').html(allSum);
+		
+	}
+	function setPanel_3(data){
+		$("#id_title").html(data.title);
+		$("#id_title_time").html(data.title+"-攻击时间分布");
+		data=data.data;
+		$("#id_critical").html(array_sum(data[4])+"次");
+		$("#id_high").html(array_sum(data[3])+"次");
+		$("#id_middle").html(array_sum(data[2])+"次");	
+		$("#id_low").html(array_sum(data[1]));	
+		$("#id_notice").html(array_sum(data[0])+"次");	
+	}
+
+	function setPanel_line(data){
+		data=data.data;
+		var _option=option_line;
+
+		for(var i=0;i<data.length;i++){
+			_option.series[i].data=data[i];
+		}
+		
+
+		myChart_line.clear();myChart_line.dispose();myChart_line = g_echarts.init(document.getElementById('lineMap'));
+		myChart_line.setOption( _option  ,true);
+
+	}
+	
+	function switchPanel(){//ds：数据源 p:板块名称数组	
+		setTimeout(function(){	
+			switchPanel();
+		},5000);
+
+		if(g_data==false) return;
+		
+		var data=g_data;
+		
+		
+
+
+		setPanel_line(data[g_monIndex]);
+		setPie(data[g_monIndex]);
+		setMapPie(data[g_monIndex]);
+		setPanel_3(data[g_monIndex]);
+
+		//showText("#id_src_0","攻击源");
+		//showText("#id_dst_0","受攻击目标");
+		//showText("#id_title_type","攻击类型");
+		//showText("#id_title_src",data[g_monIndex].title+"-攻击源分布");
+		//showText("#id_title",data[g_monIndex].title+"-危害分布");
+		//showText("#id_title_time",data[g_monIndex].title+"-攻击时间分布");
+		
+		showText("#id_title_item"+g_monIndex,data[g_monIndex].title,50);
+		showText("#id_sum_item"+g_monIndex,data[g_monIndex].sum,50);
+
+
+		if(g_monIndex==0){
+			$("#mon_f_item"+(data.length-1)).removeClass("mon_f_stat_now");
+		}else{
+			$("#mon_f_item"+(g_monIndex-1)).removeClass("mon_f_stat_now");
+		}
+		$("#mon_f_item"+g_monIndex).addClass("mon_f_stat_now");	
+		g_monIndex++;
+		if (g_monIndex==data.length){
+			g_monIndex=0;
+		}
+
+	}
+	
+	function demo_getDays(level,daySum){	
+		var output=[];
+		for(var i=0;i<daySum;i++){
+			output.push(rand(100*(5-level),1000*(5-level)));
+		}
+		return output;
+	}
+
+	function demo_getOneAttackType(typeIndex){//获取一组测试数据
+		var tempdata=[];
+		var sum=0;
+		for(var level=0;level<5;level++){
+			var temp=demo_getDays(level,31);
+			sum+=array_sum(temp);
+			tempdata.push(temp);
+		}
+		var data=tempdata;
+		
+
+		var srcSum={'北美洲':rand(100,1000),'南美洲':rand(100,1000),'亚洲':rand(100,1000),'大洋洲':rand(100,1000),'非洲':rand(100,1000)};
+		var dstSum={'北美洲':rand(100,1000),'南美洲':rand(100,1000),'亚洲':rand(100,1000),'大洋洲':rand(100,1000),'非洲':rand(100,1000)};
+		var titles=['Web攻击','网络与系统攻击'];
+		return {'title':titles[typeIndex],'data':data,'sum':sum,'srcSum':srcSum,'dstSum':dstSum};
+	}
+	
+	function getData_ex(data){//下载数据源
+		var temp=data.global;
+		var maxPanel=2;//最多支持多少个面板
+		g_data=[];
+		for(var i=0;i<maxPanel;i++){
+			if(!temp[i]) break;
+			g_data.push(temp[i]);;
+		}
+
+		setPanel_1();//设置总数
+		setTimeout(function(){	
+			switchPanel();
+		},1500);
+
+	}
+	function getData(){//下载数据源
+		var demoData=[];
+		demoData.push(demo_getOneAttackType(0));
+		demoData.push(demo_getOneAttackType(1));
+		
+		demoData={"global":demoData};
+		getData_ex(demoData);return;
+
+		$.ajax({  
+			type: "get",  
+			url: "../data/getData.php",  
+			dataType: "json",  
+			data: "act=json&t=123",  
+			success: function(data){
+				getData_ex(data);
+			}
+		});
+	}
+	
+
+	
+	//宽高自适应
+	window.onresize=function(){
+		//document.location='?x=x';return;
+		for (var i=0;i<myCharts.length;i++ )
+		{
+			try{myCharts[i].resize()}catch(e){
+				//alert(""+i+":"+e);
+			}
+		}
+	};
+	
+	getData();
+
+
+	//上一个点
+	setInterval(function(){
+		var colors=['#fff','green','blue','yellow','red'];
+		color=colors[rand(0,colors.length-1)];
+		addPoint(color,"北美洲");
+		color=colors[rand(0,colors.length-1)];
+		addPoint(color,"亚洲");
+		color=colors[rand(0,colors.length-1)];
+		addPoint(color,"欧洲");
+	},
+	3000);
+	
+
+	setInterval(function(){
+		buildMap(myChart.getOption());//重新生成map
+	},1000*60*5);//避免内存泄漏，重画表格
+
+	</script>
+</body>
+
+</html>
